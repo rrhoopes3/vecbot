@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from dataclasses import dataclass, field
+import json
 
 from vecbot.capabilities import CapabilityBaseline, CapabilityTracker
 from vecbot.drift import Finding, js_divergence, score_event
@@ -16,6 +18,21 @@ class AnalysisResult:
     residue: dict[str, list[str]] = field(default_factory=dict)
     events: list[tuple[str, object]] = field(default_factory=list)
     final_phase: str = "START"
+
+    def to_dict(self) -> dict:
+        return {
+            "final_phase": self.final_phase,
+            "event_count": len(self.events),
+            "finding_count": len(self.findings),
+            "findings": [
+                {
+                    "finding": asdict(finding),
+                    "event": json.loads(event.to_json()),
+                }
+                for finding, event in self.findings
+            ],
+            "residue": self.residue,
+        }
 
 
 def analyze(events: list, baseline: CapabilityBaseline) -> AnalysisResult:
@@ -41,4 +58,3 @@ def analyze(events: list, baseline: CapabilityBaseline) -> AnalysisResult:
     result.residue = check_residue(tracker.events)
     result.final_phase = detector.on_exit()
     return result
-

@@ -14,3 +14,10 @@ Then analyze it with:
 vecbot analyze examples/traces/malicious-runtime.jsonl
 ```
 
+Or learn a baseline first:
+
+```bash
+vecbot simulate clean > examples/traces/clean.jsonl
+vecbot learn examples/traces/clean.jsonl --out baselines/demo.json
+vecbot analyze examples/traces/malicious-runtime.jsonl --baseline baselines/demo.json --json
+```

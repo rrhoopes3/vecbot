@@ -54,3 +54,19 @@ phase: INIT_IMPORT
 
 VecBot asks whether a package gained a sensitive capability in the wrong
 process phase, then reports the evidence without pretending to know intent.
+
+## Learn/Analyze Loop
+
+```bash
+vecbot simulate clean > clean.jsonl
+vecbot simulate malicious-runtime > suspicious.jsonl
+vecbot learn clean.jsonl --out baselines/demo.json
+vecbot analyze suspicious.jsonl --baseline baselines/demo.json --json
+```
+
+Expected point:
+
+```text
+The same detector works with user-provided JSONL traces and a persisted
+baseline file, not only built-in scenarios.
+```
