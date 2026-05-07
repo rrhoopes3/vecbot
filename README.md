@@ -15,6 +15,21 @@ This sits between static supply-chain scanners and coarse runtime rules. The
 first implementation uses synthetic JSONL traces so the algorithm can be judged
 before any eBPF, ETW, auditd, or collector plumbing arrives.
 
+## Why Look At This
+
+Most runtime security rules flatten process behavior into isolated events:
+`exec`, `connect`, `open`, `write`. VecBot keeps the event, but adds lifecycle
+context. A package opening outbound sockets may be normal during steady-state
+request handling; the same shape is much stranger during import. A Markdown
+theme helper reading `~/.pypirc`, spawning `/bin/sh`, or leaving a child process
+behind after shutdown is not just "a process did a thing"; it is a package
+gaining a sensitive capability in the wrong phase, with residue.
+
+That makes VecBot useful as a small bridge between static SCA and broad runtime
+detection. It does not try to be an EDR. It tries to produce explainable
+evidence that a security engineer can inspect, suppress, baseline, or feed into
+a later collector-backed policy.
+
 ## Demo
 
 Install the local package and run the built-in scenarios:
@@ -74,6 +89,8 @@ vecbot report --scenario malicious-runtime --out reports/malicious-runtime.html
 - explainable finding scorer
 - residue checker
 - text-mode snake visualization
+- JSON output for pipelines
+- self-contained HTML timeline reports
 - tests for the core behavior
 
 ## What This Is Not
