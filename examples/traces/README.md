@@ -21,3 +21,9 @@ vecbot simulate clean > examples/traces/clean.jsonl
 vecbot learn examples/traces/clean.jsonl --out baselines/demo.json
 vecbot analyze examples/traces/malicious-runtime.jsonl --baseline baselines/demo.json --json
 ```
+
+Create a shareable report:
+
+```bash
+vecbot report examples/traces/malicious-runtime.jsonl --baseline baselines/demo.json --out reports/malicious-runtime.html
+```

@@ -5,7 +5,7 @@ __all__ = [
     "phases",
     "capabilities",
     "drift",
+    "html_report",
     "residue",
     "render",
 ]
-

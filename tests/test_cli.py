@@ -34,3 +34,14 @@ def test_trace_reader_accepts_powershell_utf16_redirection(tmp_path, capsys):
 
     assert main(["learn", str(trace), "--out", str(baseline)]) == 0
     assert baseline.exists()
+
+
+def test_report_command_writes_html(tmp_path, capsys):
+    output = tmp_path / "report.html"
+
+    assert main(["report", "--scenario", "malicious-runtime", "--out", str(output)]) == 0
+    text = output.read_text(encoding="utf-8")
+
+    assert "wrote report:" in capsys.readouterr().out
+    assert "VecBot Report" in text
+    assert "markdown-theme-helper gained proc.spawn" in text

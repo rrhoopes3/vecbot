@@ -10,6 +10,7 @@ from pathlib import Path
 from vecbot.analyzer import analyze
 from vecbot.capabilities import CapabilityBaseline
 from vecbot.events import Event
+from vecbot.html_report import render_html_report
 from vecbot.render import format_finding, format_residue, snake_view
 from vecbot.scenarios import scenario_events
 
@@ -36,6 +37,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     analyze_parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     demo.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+
+    report = subparsers.add_parser("report", help="write a self-contained HTML report")
+    report.add_argument("trace", nargs="?", help="JSONL trace to analyze")
+    report.add_argument("--scenario", help="built-in scenario to render when no trace is provided")
+    report.add_argument(
+        "--baseline",
+        help="baseline JSON file; defaults to the built-in clean synthetic baseline",
+    )
+    report.add_argument("--out", required=True, help="HTML file to write")
 
     args = parser.parse_args(argv)
 
@@ -70,6 +80,18 @@ def main(argv: list[str] | None = None) -> int:
             results.append(_print_result(scenario, scenario_events(scenario), baseline, json_output=args.json))
         if args.json:
             print(json.dumps(results, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "report":
+        name, events = _report_input(args.trace, args.scenario)
+        baseline = _load_baseline(args.baseline)
+        result = analyze(events, baseline)
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(render_html_report(name, result), encoding="utf-8")
+        print(f"wrote report: {output}")
+        print(f"findings: {len(result.findings)}")
+        print(f"residue_types: {len(result.residue)}")
         return 0
 
     return 2
@@ -141,6 +163,16 @@ def _expand_paths(patterns: list[str]) -> list[Path]:
     if missing:
         raise SystemExit(f"trace file not found: {', '.join(missing)}")
     return paths
+
+
+def _report_input(trace: str | None, scenario: str | None) -> tuple[str, list[Event]]:
+    if trace and scenario:
+        raise SystemExit("choose either a trace path or --scenario, not both")
+    if trace:
+        path = Path(trace)
+        return str(path), _read_trace(path)
+    scenario_name = scenario or "malicious-runtime"
+    return scenario_name, scenario_events(scenario_name)
 
 
 if __name__ == "__main__":

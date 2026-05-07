@@ -62,6 +62,7 @@ vecbot simulate malicious-runtime > trace.jsonl
 vecbot analyze trace.jsonl
 vecbot learn clean.jsonl --out baselines/demo.json
 vecbot analyze trace.jsonl --baseline baselines/demo.json --json
+vecbot report --scenario malicious-runtime --out reports/malicious-runtime.html
 ```
 
 ## What Exists

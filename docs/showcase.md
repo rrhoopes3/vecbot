@@ -70,3 +70,16 @@ Expected point:
 The same detector works with user-provided JSONL traces and a persisted
 baseline file, not only built-in scenarios.
 ```
+
+## HTML Timeline
+
+```bash
+vecbot report --scenario malicious-runtime --out reports/malicious-runtime.html
+```
+
+Expected point:
+
+```text
+The report is a self-contained browser artifact with phase counts, findings,
+residue, and an event timeline.
+```
